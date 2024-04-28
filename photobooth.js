@@ -41,6 +41,12 @@ let yellowBrown = "#cf9855";
 
 let stage = 0;
 
+let nextButton;
+let repeatButton;
+let pictureButton;
+let startButton;
+let finishButton;
+
 const languages = [
   "english",
   "polish",
@@ -213,13 +219,27 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-
+  createCanvas(windowWidth-5, windowHeight-5);
+ 
+  let cnv = document.querySelector('canvas');
+  if (cnv) {
+    cnv.getContext('2d', {
+    willReadFrequently:
+      true
+    }
+    );
+  }
   frameRate(18);
 
   textFont(archivoBold);
   //rectMode(CENTER);
   yb = height*2;
+
+  nextButton = new Button("Next", width / 2 - 100 / 2, height / 2, 100);
+  finishButton = new Button("Finish", width / 2 - 120 / 2, 5*height/6, 120);
+  repeatButton = new Button("Repeat picture", width / 2 - 200 / 2, 2 * height / 3, 200, 5);
+  pictureButton = new Button("Take a picture", width / 2 - 200 / 2, 5*height/6, 200);
+  startButton = new Button("Start", width / 2 - 100 / 2, 2 * height / 3, 100);
 }
 
 function draw() {
@@ -239,7 +259,8 @@ function draw() {
     textSize(32);
     text("Express your feelings about Democracy", width/2, height/2);
 
-    redButton("Start", 100, 3*height/4);
+    // redButton("Start", 100, 3*height/4);
+    startButton.display();
   } else if (stage == 1) {
     t = 2;
     stage = 2;
@@ -265,7 +286,7 @@ function draw() {
     textAlign(CENTER, TOP);
     text(displayText, width/2, height/4);
 
-    redButton("Next", 100, height/2) ;
+    nextButton.display();
 
     keys.forEach(key => {
       key.display();
@@ -292,14 +313,13 @@ function draw() {
     textAlign(RIGHT, TOP);
     text(displayText, 40, 50, width-80, height/8);
 
-
     fill(black);
     noStroke();
     textSize(24);
     textAlign(CENTER, CENTER);
     text("Write your statement", width/2, height/4);
 
-    redButton("Next", 100, height/2) ;
+    nextButton.display();
 
     keys.forEach(key => {
       key.display();
@@ -311,34 +331,58 @@ function draw() {
     capture.size(640, 480);
     capture.hide();
     stage = 6;
+    nextButton.yb = height;
   } else if (stage == 6 || stage == 7) {
-
     capture.loadPixels();
     applyTintEffect(capture);
     capture.updatePixels();
 
-    // Skalowanie obrazu do pełnej szerokości ekranu
-    scaleFactor = windowWidth / capture.width;
+    // Oblicz skalowanie na pełną szerokość i wysokość ekranu
+    let scaleWidth = windowWidth / capture.width;
+    let scaleHeight = windowHeight / capture.height;
 
-    // Pozycjonowanie na środku ekranu w pionie
+    // Wybierz większy współczynnik skalowania, aby wypełnić ekran
+    scaleFactor = max(scaleWidth, scaleHeight);
+
+    // Oblicz pozycję Y, aby wycentrować obraz w pionie
     posY = (windowHeight - capture.height * scaleFactor) / 2;
 
-    // Odbicie lustrzane w pionie
+    // Odbicie lustrzane obrazu w poziomie
     push(); // Zapisz bieżący stan transformacji
     translate(windowWidth, 0); // Przesuń punkt odniesienia na koniec szerokości ekranu
     scale(-1, 1); // Odbij poziomo
 
-    // Rysuj obraz
+    // Rysuj obraz, wycentrowany
     image(capture, 0, posY, capture.width * scaleFactor, capture.height * scaleFactor);
     pop(); // Przywróć poprzedni stan transformacji
+
     if (stage==6) {
-      redButton("Take a picture", 200, 5*height/6) ;
+      // redButton("Take a picture", 200, 5*height/6) ;
+      pictureButton.display();
       countDownTxt = 3;
     } else {
       countDown();
     }
   } else if (stage == 8) {
-    image(capturedImage, 0, posY, capture.width * scaleFactor, capture.height * scaleFactor);
+    image(capturedImage, 0, 0);
+    nextButton.display();
+    repeatButton.display();
+  } else if (stage == 9) {
+    image(capturedImage, 0, 0);
+    stroke(darkRed);
+    strokeWeight(90);
+
+    line(width, 70, width - currentText.length*20-100, 70);
+    noStroke();
+    strokeWeight(1);
+    textSize(36);
+    fill(pink);
+    textAlign(RIGHT, TOP);
+    text(statment, 40, 50, width-80, height/8);
+    textSize(36);
+    fill(255);
+    text(userName, 40, 120, width-80, height/8);
+    finishButton.display();
   }
 }
 
@@ -359,34 +403,8 @@ function applyTintEffect(img) {
   }
 }
 
-function redButton(txt, w, y) {
-  let h = 50;
-  let x = width / 2 - w / 2;
-  let ybc = y;
-  let d  = ybc-yb;
-  yb += d*easing;
-
-  // Sprawdzenie, czy kursor myszy znajduje się w obrębie przycisku
-  if (mouseX >= x && mouseX <= x + w && mouseY >= y - h && mouseY <= y) {
-    fill(pink);  // Kolor przycisku przy najechaniu kursorem
-    if (mPressed && abs(d)<10) {
-      stage++;
-      yb = height+h*2;
-    }
-  } else {
-    fill(darkRed);  // Domyślny kolor przycisku
-  }
-
-  noStroke();
-  rect(x, yb - h, w, h, 15);
-  fill(255);
-  noStroke();
-  textSize(24);
-  textAlign(CENTER, TOP);
-  text(txt, width/2, yb - h+h/4);
-}
-
 function mousePressed() {
+   fullscreen(true);
   if (wait == 0) {
     mPressed = true;
 
@@ -482,25 +500,72 @@ function displayLang() {
 
 
 function countDown() {
-  fill(184, 82, 82, 255-langT); //darkRed
-  circle(width/2, 230, 200);
-  fill(231, 216, 221, 255-langT); //pink
-  noStroke();
-  textSize(100);
-  textAlign(CENTER, CENTER);
-  text(countDownTxt, width/2, 200);
-  langT += 30;
-  if (langT>255) {
-    langT = 0;
-    countDownTxt--;
-    if (countDownTxt==0) {
-      capturedImage = createImage(capture.width, capture.height);
-      capturedImage.loadPixels();
-      applyTintEffect(capture);  // Ponownie zastosuj filtr
-      capturedImage.copy(capture, 0, 0, capture.width, capture.height, 0, 0, capture.width, capture.height);
-      capturedImage.updatePixels();
-      stage++;
+  if (countDownTxt==0) {
+    capturedImage = get(); // Przechwycenie aktualnego obrazu z canvas (gdzie wyświetlana jest kamera)
+    capture.stop(); // Zatrzymanie kamery, jeśli to konieczne
+    applyTintEffect(capturedImage); // Stosowanie efektu do przechwyconego obrazu
+    //  image(capturedImage, 0, posY, capturedImage.width * scaleFactor, capturedImage.height * scaleFactor); // Wyświetlenie przetworzonego obrazu
+
+    stage++;
+  } else {
+    fill(184, 82, 82, 255-langT); //darkRed
+    circle(width/2, 200, 200);
+    fill(231, 216, 221, 255-langT); //pink
+    noStroke();
+    textSize(100);
+    textAlign(CENTER, CENTER);
+    text(countDownTxt, width/2, 190);
+
+    langT += 30;
+    if (langT>255) {
+      langT = 0;
+      countDownTxt--;
     }
+  }
+}
+
+
+function windowResized() {
+  resizeCanvas(windowWidth-5, windowHeight-5);
+}
+
+class Button {
+  constructor(txt, x, y, w, nextStage = null) {
+    this.txt = txt;
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = 50;
+    this.nextStage = nextStage;
+    this.easing = 0.09;
+    this.yb = height; // początkowa pozycja y dla animacji
+  }
+
+  display() {
+    let d = this.y - this.yb;
+    this.yb += d * this.easing;
+
+    if (mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.yb - this.h && mouseY <= this.yb) {
+      fill(pink);  // Kolor przycisku przy najechaniu kursorem
+      if (mPressed && abs(d) < 10) { // mPressed powinno być zdefiniowane globalnie
+        if (this.nextStage !== null) {
+          stage = this.nextStage;
+        } else {
+          stage++;
+        }
+        //this.yb = this.y + this.h * 2; // Resetowanie pozycji animacji
+        // this.y = height;
+      }
+    } else {
+      fill(darkRed);  // Domyślny kolor przycisku
+    }
+
+    noStroke();
+    rect(this.x, this.yb - this.h, this.w, this.h, 15);
+    fill(255);
+    textSize(24);
+    textAlign(CENTER, TOP);
+    text(this.txt, this.x + this.w / 2, this.yb - this.h + this.h / 4);
   }
 }
 
