@@ -2,6 +2,8 @@ let capture;
 
 let mPressed = false;
 
+let languageButtons = [];
+
 let keys = [];
 let currentLayout = "english";
 let currentText = "";
@@ -10,12 +12,23 @@ let displayText = "";
 let altPressed = false;
 
 let userName = "";
-let statment = "";
 
 let archivoBold;
 let openBold;
 
 let lang = 0;
+
+let textData = {
+  textLinesData:
+[],
+  statement:
+""
+  };
+
+let a1;
+let a2;
+let a3;
+let r;
 
 let t = 0;
 let wait = 0;
@@ -29,189 +42,15 @@ let displayLangText = false;
 
 let scaleFactor;
 let posY;
+let posX;
 
-let black = "#191818";
-let violet = "#8083ae";
-let pink = "#e7d8dd";
-let turquoise = "#6bdbd6";
-let darkRed = "#b85252";
-let grey = "#808881";
-let darkGrey = "#54534d";
-let yellowBrown = "#cf9855";
-
-let stage = 0;
+let stage = -1;
 
 let nextButton;
 let repeatButton;
 let pictureButton;
 let startButton;
 let finishButton;
-
-const languages = [
-  "english",
-  "polish",
-  "greek",
-  "flemish",
-  "dutch",
-  "french",
-  "czech",
-  "croatian",
-  "lithuanian",
-  "spanish",
-  "portuguese",
-  "romanian"
-];
-
-const layouts = {
-  other:
-["1 2 3 4 5 6 7 8 9 0 bksp", "q w e r t y u i o p", "a s d f g h j k l", "shift z x c v b n m", "alt space enter language"],
-  greek:
-["1 2 3 4 5 6 7 8 9 0 bksp", "ς ε ρ τ υ θ ι ο π", "α σ δ φ γ η ξ κ λ", "shift ζ χ ψ ω β ν μ", "alt space enter language"],
-  french:
-["1 2 3 4 5 6 7 8 9 0 bksp", "a z e r t y u i o p", "q s d f g h j k l m", "shift w x c v b n", "alt space enter language"],
-  };
-
-const altLayouts = {
-  english:
-{
-"a":
-"á", "e":
-"é", "i":
-"í", "o":
-"ó", "u":
-"ú", "n":
-"ñ", "c":
-  "ç"
-}
-,
-  polish:
-{
-"a":
-"ą", "c":
-"ć", "e":
-"ę", "l":
-"ł", "n":
-"ń", "o":
-"ó", "s":
-"ś", "z":
-"ż", "x":
-  "ź"
-}
-,
-  greek:
-{
-"α":
-"ά", "ε":
-"έ", "η":
-"ή", "ι":
-"ί", "ο":
-"ό", "υ":
-"ύ", "ω":
-  "ώ"
-}
-,
-  flemish:
-{
-"a":
-"ä", "e":
-"ë", "i":
-"ï", "o":
-"ö", "u":
-  "ü"
-}
-,
-  dutch:
-{
-"a":
-"ä", "e":
-"ë", "i":
-"ï", "o":
-"ö", "u":
-  "ü"
-}
-,
-  french:
-{
-"a":
-"à", "e":
-"é", "u":
-"ù", "i":
-"î", "o":
-"ô", "c":
-  "ç"
-}
-,
-  czech:
-{
-"a":
-"á", "c":
-"č", "d":
-"ď", "e":
-"ě", "n":
-"ň", "o":
-"ó", "r":
-"ř", "s":
-"š", "t":
-"ť", "u":
-"ů", "z":
-  "ž"
-}
-,
-  croatian:
-{
-"c":
-"č", "d":
-"đ", "s":
-"š", "z":
-  "ž"
-}
-,
-  lithuanian:
-{
-"a":
-"ą", "c":
-"č", "e":
-"ę", "i":
-"į", "s":
-"š", "u":
-"ų", "z":
-  "ž"
-}
-,
-  spanish:
-{
-"a":
-"á", "e":
-"é", "i":
-"í", "o":
-"ó", "u":
-"ú", "n":
-  "ñ"
-}
-,
-  portuguese:
-{
-"a":
-"ã", "c":
-"ç", "e":
-"é", "i":
-"í", "o":
-"ó", "u":
-  "ú"
-}
-,
-  romanian:
-{
-"a":
-"ă", "A":
-"Â", "i":
-"î", "s":
-"ș", "t":
-"ț", "u":
-  "u̯"
-}
-};
-
 
 function preload() {
   archivoBold = loadFont('fonts/Archivo-Bold.ttf');
@@ -220,7 +59,7 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth-5, windowHeight-5);
- 
+
   let cnv = document.querySelector('canvas');
   if (cnv) {
     cnv.getContext('2d', {
@@ -232,158 +71,273 @@ function setup() {
   frameRate(18);
 
   textFont(archivoBold);
-  //rectMode(CENTER);
   yb = height*2;
 
-  nextButton = new Button("Next", width / 2 - 100 / 2, height / 2, 100);
-  finishButton = new Button("Finish", width / 2 - 120 / 2, 5*height/6, 120);
-  repeatButton = new Button("Repeat picture", width / 2 - 200 / 2, 2 * height / 3, 200, 5);
-  pictureButton = new Button("Take a picture", width / 2 - 200 / 2, 5*height/6, 200);
-  startButton = new Button("Start", width / 2 - 100 / 2, 2 * height / 3, 100);
+
+  a1 = PI;
+  a2 = a1 + TWO_PI*1/3;
+  a3 = a2 + TWO_PI*1/3;
+  r = 80;
+
+  nextButton = new Button("Next", width / 2 - 200 / 2, height / 2, 200);
+  finishButton = new Button("Finish", width / 2 - 240 / 2, 5 * height / 6, 240, 0);
+  repeatButton = new Button("Repeat picture", width / 2 - 400 / 2, 2 * height / 3, 400, 5);
+  pictureButton = new Button("Take a picture", width / 2 - 400 / 2, 5 * height / 6, 400);
+  startButton = new Button("Start", width / 2 - 200 / 2, 2 * height / 3, 200);
+
+  const buttonWidth = 120;
+  const buttonHeight = 50;
+  const buttonSpacing = 20;
+
+  let startX = (width - buttonWidth) / 2;
+  let startY = (height - (buttonHeight * languages.length + buttonSpacing * (languages.length - 1))) / 2;
+
+  for (let i = 0; i < languages.length; i++) {
+    let language = languages[i];
+    let btnY = startY + i * (buttonHeight + buttonSpacing);
+    languageButtons.push(new BtnLang(language, startX, btnY, buttonWidth));
+  }
 }
+
 
 function draw() {
   if (wait >0) {
     wait--;
   }
   background(turquoise);
-  if (stage == 0) {
 
-    fill(black);
-    noStroke();
-    textSize(24);
-    textAlign(CENTER, CENTER);
-    text("Make your own poster", width/2, height/8);
-
-    fill(darkRed);
-    textSize(32);
-    text("Express your feelings about Democracy", width/2, height/2);
-
-    // redButton("Start", 100, 3*height/4);
-    startButton.display();
-  } else if (stage == 1) {
-    t = 2;
-    stage = 2;
-
-    updateKeys(currentLayout);
-  } else if (stage == 2) {
-    if (displayLangText) {
-      displayLang();
-    }
-
-    if (t > 0) {
-      currentText = currentText.substring(0, currentText.length - 1);
-      t--;
-    }
-
-    fill(black);
-    noStroke();
-    textSize(24);
-    textAlign(CENTER, CENTER);
-    text("What is your name?", width/2, height/8);
-    textSize(36);
-    fill(darkRed);
-    textAlign(CENTER, TOP);
-    text(displayText, width/2, height/4);
-
-    nextButton.display();
-
-    keys.forEach(key => {
-      key.display();
+  if (stage == -1) {
+    languageButtons.forEach(button => {
+      button.display();
     }
     );
-  } else if (stage==3) {
-    userName = displayText;
+  } else if (stage == 0) {
+    userName = ""; // Clear userName
     displayText = '';
     currentText  = '';
-    stage = 4;
-  } else if (stage == 4) {
-    if (displayLangText) {
-      displayLang();
-    }
+  textData = { textLinesData:
+  [], statement:
+    ""
+  }; // Reset textData
 
-    stroke(darkRed);
-    strokeWeight(90);
+  altPressed = false;
+  capsLock = false;
+  push();
+  fill(black);
+  noStroke();
+  textSize(24);
+  textAlign(CENTER, CENTER);
+  text(getTranslation(currentLayout, "Make your own poster"), width/2, height/8);
 
-    line(width, 70, width - currentText.length*20-100, 70);
-    noStroke();
-    strokeWeight(1);
-    textSize(36);
-    fill(pink);
-    textAlign(RIGHT, TOP);
-    text(displayText, 40, 50, width-80, height/8);
+  fill(darkRed);
+  textSize(32);
+  text(getTranslation(currentLayout, "Express your feelings about Democracy"), width/2, height/2);
+  pop();
+  startButton.display();
+} else if (stage == 1) {
+  t = 2;
+  stage = 2;
 
-    fill(black);
-    noStroke();
-    textSize(24);
-    textAlign(CENTER, CENTER);
-    text("Write your statement", width/2, height/4);
+  updateKeys(currentLayout);
+} else if (stage == 2) {
+  if (displayLangText) {
+    displayLang();
+  }
 
-    nextButton.display();
+  if (t > 0) {
+    currentText = currentText.substring(0, currentText.length - 1);
+    t--;
+  }
+  push();
+  fill(black);
+  noStroke();
+  textSize(24);
+  textAlign(CENTER, CENTER);
+  text(getTranslation(currentLayout, "What is your name?"), width/2, height/8);
+  textSize(36);
+  fill(darkRed);
+  textAlign(CENTER, TOP);
+  text(displayText, width/2, height/4);
+  pop();
+  nextButton.display();
 
-    keys.forEach(key => {
-      key.display();
+  keys.forEach(key => {
+    key.display();
+  }
+  );
+} else if (stage==3) {
+  userName = displayText;
+  displayText = '';
+  currentText  = '';
+  stage = 4;
+} else if (stage == 4) {
+  if (displayLangText) {
+    displayLang();
+  }
+
+  push(); // Start a new drawing state
+  noStroke();
+  textSize(36);
+  textAlign(RIGHT, TOP);
+
+  let lineHeight = textAscent() + textDescent();
+  let spacing = 80; // Custom spacing between lines
+
+  let textLines = displayText.split('\n');
+  let yPos = 80;
+  let underlineData = [];
+
+  textData.textLinesData = []; // Clear previous data
+
+  textLines.forEach((textLine, index) => {
+    let textLineWidth = textWidth(textLine);
+    underlineData.push( {
+    startX:
+      width,
+      endX:
+      width - 100 - textLineWidth,
+      y:
+      yPos + lineHeight
     }
     );
-  } else if (stage == 5) {
-    statment = displayText;
-    capture = createCapture(VIDEO);
-    capture.size(640, 480);
-    capture.hide();
-    stage = 6;
-    nextButton.yb = height;
-  } else if (stage == 6 || stage == 7) {
-    capture.loadPixels();
-    applyTintEffect(capture);
-    capture.updatePixels();
 
-    // Oblicz skalowanie na pełną szerokość i wysokość ekranu
-    let scaleWidth = windowWidth / capture.width;
-    let scaleHeight = windowHeight / capture.height;
-
-    // Wybierz większy współczynnik skalowania, aby wypełnić ekran
-    scaleFactor = max(scaleWidth, scaleHeight);
-
-    // Oblicz pozycję Y, aby wycentrować obraz w pionie
-    posY = (windowHeight - capture.height * scaleFactor) / 2;
-
-    // Odbicie lustrzane obrazu w poziomie
-    push(); // Zapisz bieżący stan transformacji
-    translate(windowWidth, 0); // Przesuń punkt odniesienia na koniec szerokości ekranu
-    scale(-1, 1); // Odbij poziomo
-
-    // Rysuj obraz, wycentrowany
-    image(capture, 0, posY, capture.width * scaleFactor, capture.height * scaleFactor);
-    pop(); // Przywróć poprzedni stan transformacji
-
-    if (stage==6) {
-      // redButton("Take a picture", 200, 5*height/6) ;
-      pictureButton.display();
-      countDownTxt = 3;
-    } else {
-      countDown();
+    // Store each line's data
+    textData.textLinesData.push( {
+    text:
+      textLine,
+      width:
+      textLineWidth,
+      y:
+      yPos
     }
-  } else if (stage == 8) {
-    image(capturedImage, 0, 0);
-    nextButton.display();
-    repeatButton.display();
-  } else if (stage == 9) {
-    image(capturedImage, 0, 0);
+    );
+
+    yPos += lineHeight + spacing;
+  }
+  );
+
+  // Store the complete statement
+  textData.statement = displayText;
+
+  // Draw all underlines
+
+  underlineData.forEach(underlineItem => {
+    push();
     stroke(darkRed);
     strokeWeight(90);
-
-    line(width, 70, width - currentText.length*20-100, 70);
+    line(underlineItem.startX, underlineItem.y, underlineItem.endX, underlineItem.y);
     noStroke();
-    strokeWeight(1);
-    textSize(36);
-    fill(pink);
-    textAlign(RIGHT, TOP);
-    text(statment, 40, 50, width-80, height/8);
-    textSize(36);
-    fill(255);
-    text(userName, 40, 120, width-80, height/8);
-    finishButton.display();
+    fill(yellowBrown);
+    triangle(underlineItem.endX-r/2+cos(a1)*r, underlineItem.y+sin(a1) *r, underlineItem.endX-r/2+cos(a2)*r, underlineItem.y+sin(a2)*r, underlineItem.endX-r/2+cos(a3)*r, underlineItem.y+sin(a3)*r);
+    pop();
   }
+  );
+
+  // Draw all text lines
+  fill(pink);
+  noStroke();
+  textData.textLinesData.forEach(textLineData => {
+    text(textLineData.text, 40, textLineData.y+16, width - 80, height / 8);
+  }
+  );
+
+  pop(); // Restore original drawing state
+
+  fill(black);
+  textSize(24);
+  textAlign(CENTER, CENTER);
+  text(getTranslation(currentLayout, "Write your statement"), width / 2, height / 4);
+
+  nextButton.display();
+
+  keys.forEach(key => {
+    key.display();
+  }
+  );
+} else if (stage == 5) {
+  // statment = displayText;
+  capture = createCapture(VIDEO);
+  capture.size(640, 480);
+  capture.hide();
+  stage = 6;
+  nextButton.yb = height;
+} else if (stage == 6 || stage == 7) {
+  capture.loadPixels();
+  applyTintEffect(capture);
+  capture.updatePixels();
+
+  let scaleWidth = windowWidth / capture.width;
+  let scaleHeight = windowHeight / capture.height;
+
+  scaleFactor = max(scaleWidth, scaleHeight);
+
+  posY = (windowHeight - capture.height * scaleFactor) / 2;
+  // posX = (windowWidth - capture.width * scaleFactor) / 2;
+
+
+  push();
+  translate(windowWidth / 2, windowHeight / 2);
+  scale(-1 * scaleFactor, scaleFactor); // Odbicie lustrzane i skalowanie
+  image(capture, -capture.width / 2, -capture.height / 2);
+  pop();
+
+  if (stage==6) {
+    pictureButton.display();
+    countDownTxt = 3;
+  } else {
+    countDown();
+  }
+} else if (stage == 8) {
+  image(capturedImage, 0, 0);
+  nextButton.display();
+  repeatButton.display();
+} else if (stage == 9) {
+  image(capturedImage, 0, 0);
+  push(); // Start a new drawing state
+  stroke(darkRed);
+  strokeWeight(90);
+
+  let lineHeight = textAscent() + textDescent();
+  let spacing = 80; // Custom spacing between lines
+
+  // Handling multiple lines based on 'enter' character in displayText
+  let textLines = displayText.split('\n');
+  let yPos = 80;
+  let underlineData = [];
+
+  // Draw all underlines from saved data
+  textData.textLinesData.forEach(textLineData => {
+    let startX = width;
+    let endX = width - 100 - textLineData.width;
+    stroke(darkRed);
+    strokeWeight(90);
+    line(startX, textLineData.y + lineHeight - 16, endX, textLineData.y + lineHeight - 16); // Adjust y position for underline
+    noStroke();
+    fill(yellowBrown);
+    triangle(endX-r/2+cos(a1)*r, textLineData.y + lineHeight - 16+sin(a1) *r, endX-r/2+cos(a2)*r, textLineData.y + lineHeight - 16+sin(a2)*r, endX-r/2+cos(a3)*r, textLineData.y + lineHeight - 16+sin(a3)*r);
+  }
+  );
+
+  // Draw all text lines from saved data
+  fill(pink);
+  textSize(36);
+  textAlign(RIGHT, TOP);
+  noStroke();
+
+  textData.textLinesData.forEach(textLineData => {
+    text(textLineData.text, 40, textLineData.y-8, width - 80, height / 8);
+
+    // Increment yPos for the next line
+    yPos = textLineData.y + lineHeight + spacing; // Keep track of the last y position
+  }
+  );
+
+  textSize(70);
+  fill(darkRed);
+  text(userName, 40, yPos, width-80, height/4);
+  pop();
+  finishButton.display();
+}
 }
 
 
@@ -404,7 +358,7 @@ function applyTintEffect(img) {
 }
 
 function mousePressed() {
-   fullscreen(true);
+  fullscreen(true);
   if (wait == 0) {
     mPressed = true;
 
@@ -490,7 +444,7 @@ function displayLang() {
   noStroke();
   textSize(100);
   textAlign(CENTER, CENTER);
-  text(languages[lang], width/2, 200);
+  text(languages[lang], width/2, height/2);
   langT += 5;
   if (langT>255) {
     langT = 0;
@@ -498,24 +452,28 @@ function displayLang() {
   }
 }
 
+function getTranslation(language, text) {
+  return translations[language][text];
+}
+
 
 function countDown() {
   if (countDownTxt==0) {
-    capturedImage = get(); // Przechwycenie aktualnego obrazu z canvas (gdzie wyświetlana jest kamera)
-    capture.stop(); // Zatrzymanie kamery, jeśli to konieczne
-    applyTintEffect(capturedImage); // Stosowanie efektu do przechwyconego obrazu
-    //  image(capturedImage, 0, posY, capturedImage.width * scaleFactor, capturedImage.height * scaleFactor); // Wyświetlenie przetworzonego obrazu
-
+    capturedImage = get();
+    capture.stop();
+    applyTintEffect(capturedImage);
     stage++;
   } else {
+    push();
+    noStroke();
+    textFont(archivoBold);
     fill(184, 82, 82, 255-langT); //darkRed
     circle(width/2, 200, 200);
     fill(231, 216, 221, 255-langT); //pink
-    noStroke();
     textSize(100);
     textAlign(CENTER, CENTER);
     text(countDownTxt, width/2, 190);
-
+    pop();
     langT += 30;
     if (langT>255) {
       langT = 0;
@@ -527,83 +485,4 @@ function countDown() {
 
 function windowResized() {
   resizeCanvas(windowWidth-5, windowHeight-5);
-}
-
-class Button {
-  constructor(txt, x, y, w, nextStage = null) {
-    this.txt = txt;
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = 50;
-    this.nextStage = nextStage;
-    this.easing = 0.09;
-    this.yb = height; // początkowa pozycja y dla animacji
-  }
-
-  display() {
-    let d = this.y - this.yb;
-    this.yb += d * this.easing;
-
-    if (mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.yb - this.h && mouseY <= this.yb) {
-      fill(pink);  // Kolor przycisku przy najechaniu kursorem
-      if (mPressed && abs(d) < 10) { // mPressed powinno być zdefiniowane globalnie
-        if (this.nextStage !== null) {
-          stage = this.nextStage;
-        } else {
-          stage++;
-        }
-        //this.yb = this.y + this.h * 2; // Resetowanie pozycji animacji
-        // this.y = height;
-      }
-    } else {
-      fill(darkRed);  // Domyślny kolor przycisku
-    }
-
-    noStroke();
-    rect(this.x, this.yb - this.h, this.w, this.h, 15);
-    fill(255);
-    textSize(24);
-    textAlign(CENTER, TOP);
-    text(this.txt, this.x + this.w / 2, this.yb - this.h + this.h / 4);
-  }
-}
-
-
-class Key {
-  constructor(x, y, w, h, value) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.value = value;
-  }
-
-  display() {
-    fill(this.isClicked(mouseX, mouseY) ? grey : darkGrey);
-    if (altPressed && this.value == "alt") {
-      fill(grey);
-    }
-    if (capsLock && this.value == "shift") {
-      fill(grey);
-    }
-    stroke(black);
-    rect(this.x, this.y, this.w, this.h, 5);
-    noStroke();
-    fill(255);
-    textSize(16);
-    //textAlign(CENTER, CENTER);
-    let displayValue = this.value;
-    if (altPressed && altLayouts[currentLayout] && altLayouts[currentLayout][this.value]) {
-      displayValue = altLayouts[currentLayout][this.value];
-    }
-    if (capsLock) {
-      displayValue = displayValue.toUpperCase();
-    }
-    text(displayValue, this.x + this.w / 2, this.y + this.h / 2 - 10);
-  }
-
-  isClicked(px, py) {
-    return px >= this.x && px <= this.x + this.w && py >= this.y && py <= this.y + this.h;
-  }
 }
