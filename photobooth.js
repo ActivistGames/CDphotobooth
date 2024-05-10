@@ -11,6 +11,10 @@ let capsLock = false;
 let displayText = "";
 let altPressed = false;
 
+let lastActivityTime;
+
+let posterIndex = 0;
+
 let userName = "";
 
 let archivoBold;
@@ -80,7 +84,7 @@ function setup() {
   r = 80;
 
   nextButton = new Button("Next", width / 2 - 200 / 2, height / 2, 200);
-  finishButton = new Button("Finish", width / 2 - 240 / 2, 5 * height / 6, 240, 0);
+  finishButton = new Button("Finish", width / 2 - 240 / 2, 5 * height / 6, 240);
   repeatButton = new Button("Repeat picture", width / 2 - 400 / 2, 2 * height / 3, 400, 5);
   pictureButton = new Button("Take a picture", width / 2 - 400 / 2, 5 * height / 6, 400);
   startButton = new Button("Start", width / 2 - 200 / 2, 2 * height / 3, 200);
@@ -104,6 +108,7 @@ function draw() {
   if (wait >0) {
     wait--;
   }
+  checkUserActivity();
   background(turquoise);
 
   if (stage == -1) {
@@ -337,7 +342,34 @@ function draw() {
   text(userName, 40, yPos, width-80, height/4);
   pop();
   finishButton.display();
+} else if (stage==10) {
+  /*
+  let canvas = $('canvas')[0];
+  let data = canvas.toDataURL('image/png').replace(/data:
+  image\/png;
+  base64, /, '');
+
+  let iname = 'poster_' + posterIndex + "_" + currentLayout +'.png';
+
+  $('canvas').remove();
+  $.post('save.php', {
+  data:
+    data, iname
+  }
+  );
+
+  posterIndex++;
+  */
+  stage = 0;
 }
+
+
+
+if (stage > 1 && stage != 7 && stage < 10) {
+  backButton();
+}
+
+
 }
 
 
@@ -370,6 +402,7 @@ function mousePressed() {
     );
   }
   wait = 2;
+  lastActivityTime = millis();
 }
 
 function mouseReleased() {
@@ -482,6 +515,36 @@ function countDown() {
   }
 }
 
+function checkUserActivity() {
+  if (millis() - lastActivityTime > INACTIVITY_THRESHOLD) {
+    stage = 0;
+  }
+}
+
+function backButton() {
+  let wb = 100;
+  let hb = 50;
+  let marginB = 30;
+  let sW = 30;
+
+  push();
+
+  if (mouseX >= marginB && mouseX <= marginB*2+sW/2 + wb && mouseY >= marginB && mouseY <= marginB + hb) {
+    fill(violet);
+    stroke(pink);
+    if (mPressed) {
+      stage = 0;
+    }
+  } else {
+    fill(darkRed);
+    stroke(yellowBrown);
+  }
+  strokeWeight(sW);
+  line(marginB*2+sW/2, marginB*2, marginB*2+wb, marginB*2);
+  noStroke();
+  triangle(marginB*2+cos(a1)*hb/2, marginB*2 +sin(a1)*hb/2, marginB*2+cos(a2)*hb/2, marginB*2+sin(a2)*hb/2, marginB*2+cos(a3)*hb/2, marginB*2+sin(a3)*hb/2);
+  pop();
+}
 
 function windowResized() {
   resizeCanvas(windowWidth-5, windowHeight-5);

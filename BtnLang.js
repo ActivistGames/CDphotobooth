@@ -16,9 +16,9 @@ class BtnLang {
 
     if (mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.yb - this.h && mouseY <= this.yb) {
       fill(pink);  // Kolor przycisku przy najechaniu kursorem
-      if (mPressed && abs(d) < 10) { // mPressed powinno być zdefiniowane globalnie
+      if (mPressed) { // mPressed powinno być zdefiniowane globalnie
         currentLayout = this.txt;
-        stage = 1;
+        stage = 0;
       }
     } else {
       fill(darkRed);  // Domyślny kolor przycisku

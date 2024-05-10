@@ -19,7 +19,7 @@ class Button {
     push();
     if (mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.yb - this.h && mouseY <= this.yb) {
       fill(pink);
-      if (mPressed && abs(d) < 50) {
+      if (mPressed) {
         if (this.nextStage !== null) {
           stage = this.nextStage;
         } else {

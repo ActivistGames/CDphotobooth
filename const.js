@@ -9,6 +9,7 @@ let grey = "#808881";
 let darkGrey = "#54534d";
 let yellowBrown = "#cf9855";
 
+const INACTIVITY_THRESHOLD = 180000; // 3 minutes in milliseconds
 
 const languages = [
   "english",
