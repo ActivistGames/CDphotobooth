@@ -14,16 +14,8 @@ class BtnLang {
     let d = this.y - this.yb;
     this.yb += d * this.easing;
 
-    if (mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.yb - this.h && mouseY <= this.yb) {
-      fill(pink);  // Kolor przycisku przy najechaniu kursorem
-      if (mPressed) { // mPressed powinno być zdefiniowane globalnie
-        currentLayout = this.txt;
-        stage = 0;
-      }
-    } else {
-      fill(darkRed);  // Domyślny kolor przycisku
-    }
     push();
+    fill(this.isClicked(mouseX, mouseY) ? pink : darkRed);
     textFont(archivoBold);
     noStroke();
     rect(this.x, this.yb - this.h, this.w, this.h, 15);
@@ -33,5 +25,14 @@ class BtnLang {
     let abbreviation = languageAbbreviations[this.txt.toLowerCase()] || "N/A";
     text(abbreviation, this.x + this.w / 2, this.yb - this.h + this.h / 4);
     pop();
+  }
+
+  isClicked(px, py) {
+    return px >= this.x && px <= this.x + this.w && py >= this.yb - this.h && py <= this.yb;
+  }
+
+  handleClick() {
+    currentLayout = this.txt;
+    stage = 0;
   }
 }

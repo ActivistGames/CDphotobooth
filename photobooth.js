@@ -50,11 +50,14 @@ let posX;
 
 let stage = -1;
 
+let backButton;
+
 let nextButton;
 let repeatButton;
 let pictureButton;
 let startButton;
 let finishButton;
+let allButtons = [];
 
 function preload() {
   archivoBold = loadFont('fonts/Archivo-Bold.ttf');
@@ -62,7 +65,7 @@ function preload() {
 }
 
 function setup() {
-  window.location.href = "https://changingdemocracies.eu/admin/photobooth";
+  //window.location.href = "https://changingdemocracies.eu/admin/photobooth";
   createCanvas(windowWidth-5, windowHeight-5);
 
   let cnv = document.querySelector('canvas');
@@ -78,7 +81,6 @@ function setup() {
   textFont(archivoBold);
   yb = height*2;
 
-
   a1 = PI;
   a2 = a1 + TWO_PI*1/3;
   a3 = a2 + TWO_PI*1/3;
@@ -89,6 +91,11 @@ function setup() {
   repeatButton = new Button("Repeat picture", width / 2 - 400 / 2, 2 * height / 3, 400, 5);
   pictureButton = new Button("Take a picture", width / 2 - 400 / 2, 5 * height / 6, 400);
   startButton = new Button("Start", width / 2 - 200 / 2, 2 * height / 3, 200);
+
+  allButtons.push(nextButton, finishButton, repeatButton, pictureButton, startButton);
+
+  backButton = new BackButton();
+
 
   const buttonWidth = 120;
   const buttonHeight = 50;
@@ -346,28 +353,28 @@ function draw() {
 } else if (stage==10) {
   /*
   let canvas = $('canvas')[0];
-  let data = canvas.toDataURL('image/png').replace(/data:
-  image\/png;
-  base64, /, '');
-
-  let iname = 'poster_' + posterIndex + "_" + currentLayout +'.png';
-
-  $('canvas').remove();
-  $.post('save.php', {
-  data:
-    data, iname
-  }
-  );
-
-  posterIndex++;
-  */
+   let data = canvas.toDataURL('image/png').replace(/data:
+   image\/png;
+   base64, /, '');
+   
+   let iname = 'poster_' + posterIndex + "_" + currentLayout +'.png';
+   
+   $('canvas').remove();
+   $.post('save.php', {
+   data:
+   data, iname
+   }
+   );
+   
+   posterIndex++;
+   */
   stage = 0;
 }
 
 
 
 if (stage > 1 && stage != 7 && stage < 10) {
-  backButton();
+  backButton.display();
 }
 
 
@@ -393,7 +400,25 @@ function applyTintEffect(img) {
 function mousePressed() {
   fullscreen(true);
   if (wait == 0) {
-    mPressed = true;
+    if (stage==-1) {
+      languageButtons.forEach(button => {
+        if (button.isClicked(mouseX, mouseY)) {
+          button.handleClick();
+        }
+      }
+      );
+    }
+    
+    if (backButton.isClicked(mouseX, mouseY)) {
+      backButton.handleClick();
+    }
+
+    allButtons.forEach(button => {
+      if (button.isClicked(mouseX, mouseY)) {
+        button.handleClick();
+      }
+    }
+    );
 
     keys.forEach(key => {
       if (key.isClicked(mouseX, mouseY)) {
@@ -404,10 +429,6 @@ function mousePressed() {
   }
   wait = 2;
   lastActivityTime = millis();
-}
-
-function mouseReleased() {
-  mPressed = false;
 }
 
 function handleKey(value) {
@@ -520,31 +541,6 @@ function checkUserActivity() {
   if (millis() - lastActivityTime > INACTIVITY_THRESHOLD) {
     stage = 0;
   }
-}
-
-function backButton() {
-  let wb = 100;
-  let hb = 50;
-  let marginB = 30;
-  let sW = 30;
-
-  push();
-
-  if (mouseX >= marginB && mouseX <= marginB*2+sW/2 + wb && mouseY >= marginB && mouseY <= marginB + hb) {
-    fill(violet);
-    stroke(pink);
-    if (mPressed) {
-      stage = 0;
-    }
-  } else {
-    fill(darkRed);
-    stroke(yellowBrown);
-  }
-  strokeWeight(sW);
-  line(marginB*2+sW/2, marginB*2, marginB*2+wb, marginB*2);
-  noStroke();
-  triangle(marginB*2+cos(a1)*hb/2, marginB*2 +sin(a1)*hb/2, marginB*2+cos(a2)*hb/2, marginB*2+sin(a2)*hb/2, marginB*2+cos(a3)*hb/2, marginB*2+sin(a3)*hb/2);
-  pop();
 }
 
 function windowResized() {

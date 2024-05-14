@@ -20,19 +20,9 @@ class Button {
       let d = this.y - this.yb;
       this.yb += d * this.easing;
       push();
-      if (mouseX >= this.x && mouseX <= this.x + this.w && mouseY >= this.yb - this.h && mouseY <= this.yb) {
-        fill(pink);
-        if (mPressed) {
-          if (this.nextStage !== null) {
-            stage = this.nextStage;
-          } else {
-            stage++;
-          }
-          this.reset();
-        }
-      } else {
-        fill(darkRed);
-      }
+
+      fill(this.isClicked(mouseX, mouseY) ? pink : darkRed);
+
       if (this.hide == false) {
         noStroke();
         rect(this.x, this.yb - this.h, this.w, this.h, 15);
@@ -50,6 +40,20 @@ class Button {
       this.t--;
     }
   }
+
+  isClicked(px, py) {
+    return px >= this.x && px <= this.x + this.w && py >= this.yb - this.h && py <= this.yb;
+  }
+
+  handleClick() {
+    if (this.nextStage !== null) {
+      stage = this.nextStage;
+    } else {
+      stage++;
+    }
+    this.reset();
+  }
+
   reset() {
     this.yb = this.yb2;
     this.t = 4;
