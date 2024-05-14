@@ -62,6 +62,7 @@ function preload() {
 }
 
 function setup() {
+  window.location.href = "https://changingdemocracies.eu/admin/photobooth";
   createCanvas(windowWidth-5, windowHeight-5);
 
   let cnv = document.querySelector('canvas');
