@@ -368,7 +368,7 @@ function draw() {
    
    posterIndex++;
    */
-  stage = 0;
+  stage = -1;
 }
 
 
