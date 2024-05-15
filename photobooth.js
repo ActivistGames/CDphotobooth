@@ -427,7 +427,7 @@ function mousePressed() {
     }
     );
   }
-  wait = 2;
+  wait = 4;
   lastActivityTime = millis();
 }
 
