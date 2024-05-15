@@ -45,7 +45,7 @@ const languageAbbreviations = {
 const translations = {
   english: {
     "Make your own poster": "Make your own poster",
-    "Express your feelings about Democracy": "Express your feelings about Democracy",
+    "Express your feelings about Democracy": "Add your statement about democracy",
     "What is your name?": "What is your name?",
     "Write your statement": "Write your statement",
     "Next": "Next",
