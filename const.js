@@ -15,7 +15,6 @@ const languages = [
   "english",
   "polish",
   "greek",
-  "flemish",
   "dutch",
   "french",
   "czech",
